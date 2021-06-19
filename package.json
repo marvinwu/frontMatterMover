@@ -1,8 +1,11 @@
 {
-  "name": "frontMover",
+  "name": "frontMatterMover",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "bin": {
+    "frontMover": "bin/frontMover"
+  },
   "scripts": {
     "test": "jest"
   },

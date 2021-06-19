@@ -1,0 +1,40 @@
+#!/usr/bin/env node
+const program = require("commander");
+const fs = require("fs");
+const { mover, ensureDirectoryExistence } = require("../lib/index");
+const glob = require("glob");
+const path = require("path");
+program
+  .command("cleanDir <globPattern> <outputDir> [limit] ")
+  .action((globPattern, outputDir, limit = 10000000) => {
+    const files = glob.sync(globPattern) || [];
+    console.log(files);
+    const output = [];
+    let count = 1;
+    files.every((file) => {
+      console.log(file);
+      console.error(`processing ${file}`);
+      const isFile = fs.statSync(file).isFile();
+      if (isFile) {
+        const inputContent = fs.readFileSync(file, "utf8");
+        const outputContent = mover(inputContent);
+        ensureDirectoryExistence(path.join(outputDir, file));
+        fs.writeFileSync(path.join(outputDir, file), outputContent, "utf8");
+      }
+      if (count > limit) {
+        return false;
+      }
+      count++;
+      return true;
+    });
+  });
+
+program.on("command:*", () => {
+  console.error(
+    "Invalid command: %s\nSee --help for a list of available commands.",
+    program.args.join(" ")
+  );
+  process.exit(1);
+});
+
+program.parse(process.argv);
